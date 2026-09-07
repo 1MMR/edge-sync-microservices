@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  workload-engine:
+    build: ./services/workload
+    container_name: workload-engine-1
+    volumes:
+      - ./shared-data:/app/data
+    networks:
+      - edge-net
+
+  network-sentinel:
+    build: ./services/sentinel
+    container_name: network-sentinel-1
+    volumes:
+      - ./shared-data:/app/data
+    networks:
+      - edge-net
+
+  sync-agent:
+    build: ./services/sync-agent
+    container_name: sync-agent-1
+    volumes:
+      - ./shared-data:/app/data
+      - ~/.ssh:/root/.ssh:ro  # Mounts your local GitHub SSH keys read-only; see README notes about known_hosts
+    environment:
+      - GITHUB_REPO=git@github.com:1MMR/edge-sync-reports.git
+    networks:
+      - edge-net
+
+networks:
+  edge-net:
+    driver: bridge
